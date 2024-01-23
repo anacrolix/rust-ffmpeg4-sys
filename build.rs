@@ -151,7 +151,9 @@ fn fetch() -> io::Result<()> {
         .arg(format!("ffmpeg-{}", version()))
         .status()?;
 
-    if status.success() {
+    // git clone can exit with 128 if the directory already exists (and we're hoping it's a valid
+    // checkout).
+    if status.success() || status.code() == Some(128) {
         Ok(())
     } else {
         Err(io::Error::new(io::ErrorKind::Other, "fetch failed"))
